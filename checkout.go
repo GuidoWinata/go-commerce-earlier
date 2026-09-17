@@ -4,7 +4,7 @@ import (
 	"math/rand/v2"
 )
 
-var (
+const (
 	CompleteMsg  = "Completed"
 	PendingMsg   = "Pending"
 	CancelledMsg = "Cancelled"
@@ -19,6 +19,7 @@ type Order struct {
 }
 
 type OrderItem struct {
+	ProductID   int
 	Qty         int
 	UnitPrice   int64
 	ProductName string
@@ -44,16 +45,20 @@ func Checkout(customerID int, c *Cart, catalog *CatalogLists) (*Order, error) {
 			return nil, ErrSoldStock
 		}
 
-		subtotal := int64(item.Qty) * product.Price
+		subtotal := int64(item.Qty) * item.Price
 
 		items = append(items, OrderItem{
 			Qty:         item.Qty,
-			UnitPrice:   product.Price,
-			ProductName: product.Name,
+			UnitPrice:   item.Price,
+			ProductName: item.ProductName,
 			Subtotal:    subtotal,
 		})
 
-		product.Stock -= item.Qty
+		_, errReduceStock := catalog.ReduceStock(product.ID, item.Qty)
+		if errReduceStock != nil {
+			return nil, errReduceStock
+		}
+
 		total += subtotal
 	}
 

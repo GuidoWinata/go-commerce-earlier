@@ -1,3 +1,3 @@
-module github.com/GuidoWinata/go-commerce.git
+module github.com/GuidoWinata/go-commerce-earlier.git
 
 go 1.22.2
